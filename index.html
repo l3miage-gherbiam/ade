@@ -5,52 +5,110 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mon Emploi du Temps - Calendrier</title>
     
+    <!-- Polices Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- FullCalendar JS et Langue Française (CDN) -->
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@fullcalendar/core@6.1.11/locales/fr.global.min.js"></script>
 
     <style>
-        :root { --bg: #f3f4f6; --text: #1f2937; --primary: #3b82f6; --accent: #ef4444; --success: #10b981; }
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
-        body { background-color: var(--bg); color: var(--text); padding: 15px; height: 100vh; display: flex; flex-direction: column; }
-        
-        .top-bar {
-            background: var(--primary); color: white; padding: 15px 25px;
-            border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            display: flex; justify-content: space-between; align-items: center;
-            margin-bottom: 15px; flex-shrink: 0;
+        :root { 
+            --bg: #f3f4f6; 
+            --text: #1f2937; 
+            --primary: #3b82f6; 
+            --primary-dark: #2563eb;
+            --accent: #ef4444; 
+            --success: #10b981; 
+            --warning: #fbbf24;
         }
 
-        .header-left h1 { font-size: 1.4rem; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+        
+        body { 
+            background-color: var(--bg); 
+            color: var(--text); 
+            padding: 15px; 
+            min-height: 100vh; 
+            display: flex; 
+            flex-direction: column; 
+        }
+        
+        /* Barre du haut */
+        .top-bar {
+            background: var(--primary); 
+            color: white; 
+            padding: 15px 25px;
+            border-radius: 12px; 
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center;
+            margin-bottom: 15px; 
+            flex-shrink: 0; 
+            flex-wrap: wrap; 
+            gap: 10px;
+        }
+
+        .header-left h1 { font-size: 1.4rem; font-weight: 700; }
+        
         .header-right { display: flex; align-items: center; gap: 15px; }
+        
         .status { display: flex; align-items: center; gap: 8px; font-size: 0.9em; font-weight: 500;}
-        .dot { width: 10px; height: 10px; border-radius: 50%; background-color: var(--success); }
+        .dot { width: 10px; height: 10px; border-radius: 50%; background-color: var(--warning); transition: background-color 0.3s; }
 
         .btn-refresh {
-            background: white; color: var(--primary); border: none;
-            padding: 8px 16px; border-radius: 8px; font-weight: 600;
-            cursor: pointer; transition: 0.2s; box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            background: white; 
+            color: var(--primary); 
+            border: none;
+            padding: 8px 16px; 
+            border-radius: 8px; 
+            font-weight: 600;
+            cursor: pointer; 
+            transition: all 0.2s; 
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
         .btn-refresh:hover { background: #f8fafc; transform: translateY(-1px); }
+        .btn-refresh:active { transform: translateY(0); }
 
+        /* Boîte d'alerte en cas de changement */
         #alert-box {
-            display: none; background: #fee2e2; border-left: 5px solid var(--accent);
-            padding: 15px 20px; border-radius: 8px; margin-bottom: 15px; flex-shrink: 0;
+            display: none; 
+            background: #fee2e2; 
+            border-left: 5px solid var(--accent);
+            padding: 15px 20px; 
+            border-radius: 8px; 
+            margin-bottom: 15px; 
+            flex-shrink: 0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
         }
         #alert-box h3 { color: #991b1b; margin-bottom: 10px; font-size: 1.1em;}
         .change-item { margin-bottom: 5px; font-size: 0.9em; color: #7f1d1d; }
 
+        /* Conteneur principal du calendrier */
         #calendar-container {
-            flex-grow: 1; background: white; padding: 20px; border-radius: 12px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05); overflow: hidden; display: flex; flex-direction: column;
+            flex-grow: 1; 
+            background: white; 
+            padding: 20px; 
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05); 
+            min-height: 75vh;
+            display: flex; 
+            flex-direction: column;
         }
         
-        #calendar { height: 100%; width: 100%; }
+        #calendar { height: 100%; width: 100%; flex-grow: 1; }
+
+        /* Personnalisation visuelle des cours */
         .fc-event { border: none !important; border-radius: 6px !important; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
         .fc-event-main { padding: 4px; overflow: hidden; }
-        .custom-event-title { font-weight: 600; font-size: 0.85em; white-space: normal; line-height: 1.2; margin-bottom: 4px;}
-        .custom-event-location { font-size: 0.75em; opacity: 0.9; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;}
+        .custom-event-title { font-weight: 600; font-size: 0.85em; white-space: normal; line-height: 1.2; margin-bottom: 3px; }
+        .custom-event-location { font-size: 0.75em; opacity: 0.9; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        
         .fc .fc-button-primary { background-color: var(--primary) !important; border-color: var(--primary) !important; }
+        .fc .fc-button-primary:not(:disabled):active, .fc .fc-button-primary:not(:disabled).fc-button-active {
+            background-color: var(--primary-dark) !important; border-color: var(--primary-dark) !important;
+        }
     </style>
 </head>
 <body>
@@ -62,14 +120,14 @@
     <div class="header-right">
         <div class="status">
             <div class="dot" id="status-dot"></div>
-            <span id="last-update">Initialisation...</span>
+            <span id="last-update">Connexion en cours...</span>
         </div>
         <button class="btn-refresh" onclick="fetchEdt()">🔄 Actualiser</button>
     </div>
 </div>
 
 <div id="alert-box">
-    <h3>🚨 Changements depuis la dernière visite !</h3>
+    <h3>🚨 Changements détectés depuis votre dernière visite !</h3>
     <div id="alert-content"></div>
 </div>
 
@@ -78,43 +136,64 @@
 </div>
 
 <script>
+    // URL directe de l'ADE de l'Université Lyon 1
     const EDT_URL = "https://edt.univ-lyon1.fr/jsp/custom/modules/plannings/anonymous_cal.jsp?resources=42258&projectId=1&calType=ical&firstDate=2026-08-18&lastDate=2027-08-01";
-    
-    // Le meilleur proxy, qui fonctionne parfaitement avec GitHub
+    // Proxy AllOrigins pour contourner le blocage CORS
     const PROXY_URL = `https://api.allorigins.win/get?url=${encodeURIComponent(EDT_URL)}`;
     
     let calendarInstance = null;
 
+    // Décodage des dates iCalendar (ex: 20260901T080000Z)
     function parseICalDate(dateStr) {
         if (!dateStr) return null;
-        const y = dateStr.substr(0,4), m = dateStr.substr(4,2)-1, d = dateStr.substr(6,2);
-        if (dateStr.length > 8) {
-            const h = dateStr.substr(9,2), min = dateStr.substr(11,2), s = dateStr.substr(13,2);
-            if (dateStr.endsWith('Z')) return new Date(Date.UTC(y, m, d, h, min, s));
+        const cleanStr = dateStr.trim();
+        const y = parseInt(cleanStr.substr(0, 4), 10);
+        const m = parseInt(cleanStr.substr(4, 2), 10) - 1;
+        const d = parseInt(cleanStr.substr(6, 2), 10);
+
+        if (cleanStr.length > 8) {
+            const h = parseInt(cleanStr.substr(9, 2), 10);
+            const min = parseInt(cleanStr.substr(11, 2), 10);
+            const s = parseInt(cleanStr.substr(13, 2) || 0, 10);
+
+            if (cleanStr.endsWith('Z')) {
+                return new Date(Date.UTC(y, m, d, h, min, s));
+            }
             return new Date(y, m, d, h, min, s);
         }
         return new Date(y, m, d);
     }
 
+    // Analyseur de fichier .ics
     function parseICS(icsText) {
         const events = {};
         if (!icsText) return events;
+        
         const lines = icsText.split(/\r\n|\n|\r/);
         let currentEvent = null;
 
         for (let i = 0; i < lines.length; i++) {
             let line = lines[i];
-            while (i + 1 < lines.length && (lines[i+1].startsWith(' ') || lines[i+1].startsWith('\t'))) {
-                i++; line += lines[i].substring(1);
+            
+            // Gestion des retours à la ligne pliés selon la norme iCalendar
+            while (i + 1 < lines.length && (lines[i + 1].startsWith(' ') || lines[i + 1].startsWith('\t'))) {
+                i++;
+                line += lines[i].substring(1);
             }
-            if (line.startsWith('BEGIN:VEVENT')) currentEvent = {};
-            else if (line.startsWith('END:VEVENT')) {
-                if (currentEvent && currentEvent.uid) events[currentEvent.uid] = currentEvent;
+
+            if (line.startsWith('BEGIN:VEVENT')) {
+                currentEvent = {};
+            } else if (line.startsWith('END:VEVENT')) {
+                if (currentEvent && currentEvent.uid) {
+                    events[currentEvent.uid] = currentEvent;
+                }
                 currentEvent = null;
             } else if (currentEvent) {
                 const match = line.match(/^([^;:]+)(?:;[^:]+)?:(.*)$/);
                 if (match) {
-                    const key = match[1], value = match[2];
+                    const key = match[1].trim();
+                    const value = match[2].trim();
+                    
                     if (key === 'UID') currentEvent.uid = value;
                     else if (key === 'SUMMARY') currentEvent.summary = value.replace(/\\,/g, ',').replace(/\\n/g, ' ');
                     else if (key === 'LOCATION') currentEvent.location = value.replace(/\\,/g, ',');
@@ -126,20 +205,26 @@
         return events;
     }
 
+    // Initialisation de FullCalendar
     function initCalendar() {
         const calendarEl = document.getElementById('calendar');
         calendarInstance = new FullCalendar.Calendar(calendarEl, {
             locale: 'fr',
             initialView: 'timeGridWeek',
-            headerToolbar: { left: 'prev,next today', center: 'title', right: 'dayGridMonth,timeGridWeek,timeGridDay' },
-            slotMinTime: '07:00:00',
-            slotMaxTime: '21:00:00',
+            headerToolbar: { 
+                left: 'prev,next today', 
+                center: 'title', 
+                right: 'dayGridMonth,timeGridWeek,timeGridDay' 
+            },
+            slotMinTime: '07:30:00',
+            slotMaxTime: '20:30:00',
             expandRows: true,
             allDaySlot: false,
+            nowIndicator: true,
             events: [],
             eventContent: function(arg) {
                 let html = `<div class="custom-event-title">${arg.event.title}</div>`;
-                if (arg.event.extendedProps.location) {
+                if (arg.event.extendedProps && arg.event.extendedProps.location) {
                     html += `<div class="custom-event-location">📍 ${arg.event.extendedProps.location}</div>`;
                 }
                 return { html: html };
@@ -148,6 +233,7 @@
         calendarInstance.render();
     }
 
+    // Chargement des données dans le calendrier
     function loadEventsToCalendar(eventsMap) {
         const fcEvents = Object.values(eventsMap).map(ev => ({
             id: ev.uid,
@@ -161,33 +247,41 @@
         calendarInstance.addEventSource(fcEvents);
     }
 
+    // Formatage des dates en français pour les alertes
     function formatDateFR(date) {
-        if(!date) return '';
+        if (!date) return '';
         return new Intl.DateTimeFormat('fr-FR', {
             weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit'
         }).format(date);
     }
 
+    // Comparaison entre l'ancienne version enregistrée et la nouvelle
     function compareAndAlert(oldEvents, newEvents) {
         const alertBox = document.getElementById('alert-box');
         const alertContent = document.getElementById('alert-content');
         alertContent.innerHTML = '';
         let hasChanges = false;
-        const uidsNew = Object.keys(newEvents), uidsOld = Object.keys(oldEvents);
 
+        const uidsNew = Object.keys(newEvents);
+        const uidsOld = Object.keys(oldEvents);
+
+        // Ajoutés ou modifiés
         uidsNew.forEach(uid => {
             if (!oldEvents[uid]) {
                 hasChanges = true;
                 alertContent.innerHTML += `<div class="change-item">➕ <b>Ajouté :</b> ${newEvents[uid].summary} (${formatDateFR(newEvents[uid].start)})</div>`;
             } else {
                 const o = oldEvents[uid], n = newEvents[uid];
-                if (o.location !== n.location || o.start?.getTime() !== n.start?.getTime()) {
+                const locDiff = o.location !== n.location;
+                const dateDiff = o.start?.getTime() !== n.start?.getTime();
+                if (locDiff || dateDiff) {
                     hasChanges = true;
                     alertContent.innerHTML += `<div class="change-item">✏️ <b>Modifié :</b> ${n.summary} (Maintenant : ${formatDateFR(n.start)} - ${n.location})</div>`;
                 }
             }
         });
 
+        // Supprimés / Annulés
         uidsOld.forEach(uid => {
             if (!newEvents[uid]) {
                 hasChanges = true;
@@ -198,56 +292,97 @@
         alertBox.style.display = hasChanges ? 'block' : 'none';
     }
 
+    // Récupération de l'emploi du temps avec logs complets
     async function fetchEdt() {
         const statusEl = document.getElementById('last-update');
         const dotEl = document.getElementById('status-dot');
         
-        try {
-            statusEl.innerText = "Recherche en cours...";
-            dotEl.style.backgroundColor = "#fbbf24"; 
+        console.log("🚀 [ÉTAPE 1] Début du téléchargement...");
+        console.log("🔗 URL appelée :", PROXY_URL);
+        
+        statusEl.innerText = "Recherche en cours...";
+        dotEl.style.backgroundColor = "var(--warning)";
 
-            // Utilisation de AllOrigins (parfait pour GitHub Pages)
+        try {
             const response = await fetch(PROXY_URL);
-            if (!response.ok) throw new Error("Erreur réseau");
+            console.log("📥 [ÉTAPE 2] Réponse reçue du proxy. Statut HTTP :", response.status);
             
+            if (!response.ok) {
+                throw new Error(`Le serveur proxy a répondu avec l'erreur HTTP ${response.status}`);
+            }
+
             const data = await response.json();
-            if (!data.contents) throw new Error("Données vides");
-            
+            console.log("📦 [ÉTAPE 3] Données JSON décodées :", data);
+
+            if (!data.contents) {
+                throw new Error("Le champ 'contents' de la réponse est vide.");
+            }
+
             const newIcsString = data.contents;
+            console.log("📄 [ÉTAPE 4] Longueur du texte reçu :", newIcsString.length, "caractères.");
+            console.log("📄 [ÉTAPE 4 - APERÇU DU CONTENU] :");
+            console.log(newIcsString.substring(0, 400));
+
+            // Vérification du type de contenu
+            if (newIcsString.includes("<html") || newIcsString.includes("<!DOCTYPE")) {
+                console.error("🚨 ERREUR : La fac a renvoyé une page HTML (page d'erreur ou blocage) au lieu du fichier ICS !");
+            } else if (newIcsString.includes("BEGIN:VCALENDAR")) {
+                console.log("✅ C'est bien un fichier iCalendar valide !");
+            }
+
+            // Découpage des événements
             const newEvents = parseICS(newIcsString);
-            
+            const nbCours = Object.keys(newEvents).length;
+            console.log("📊 [ÉTAPE 5] Nombre d'événements (cours) décodés :", nbCours);
+
+            if (nbCours === 0) {
+                statusEl.innerText = "0 cours trouvé";
+                dotEl.style.backgroundColor = "var(--accent)";
+                console.warn("⚠️ Attention : Aucun cours n'a pu être extrait. Vérifiez l'aperçu du texte reçu.");
+                return;
+            }
+
+            // Comparaison avec les données sauvegardées
             const oldIcsString = localStorage.getItem('edt_saved_data');
-            
             if (oldIcsString && oldIcsString !== newIcsString) {
                 compareAndAlert(parseICS(oldIcsString), newEvents);
             } else {
                 document.getElementById('alert-box').style.display = 'none';
             }
-            
+
+            // Sauvegarde locale
             localStorage.setItem('edt_saved_data', newIcsString);
+
+            // Mise à jour de l'affichage
             loadEventsToCalendar(newEvents);
 
             const now = new Date();
-            statusEl.innerText = `À jour (${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')})`;
+            const heureStr = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
+            statusEl.innerText = `À jour (${heureStr}) - ${nbCours} cours`;
             dotEl.style.backgroundColor = "var(--success)";
+            console.log("✨ Calendrier mis à jour avec succès !");
 
         } catch (error) {
-            console.error("Erreur:", error);
-            statusEl.innerText = "Erreur de synchro";
+            console.error("🔥 [ERREUR GLOBALE] :", error);
+            statusEl.innerText = "Erreur de connexion";
             dotEl.style.backgroundColor = "var(--accent)";
         }
     }
 
+    // Démarrage automatique au chargement
     document.addEventListener('DOMContentLoaded', function() {
-        initCalendar(); 
+        initCalendar();
         
+        // Affichage instantané du cache s'il existe déjà
         const savedData = localStorage.getItem('edt_saved_data');
         if (savedData) {
+            console.log("⚡ Affichage immédiat des cours en mémoire hors-ligne...");
             loadEventsToCalendar(parseICS(savedData));
             document.getElementById('last-update').innerText = "Mode hors-ligne";
         }
 
-        fetchEdt(); 
+        // Requête réseau
+        fetchEdt();
     });
 
 </script>
