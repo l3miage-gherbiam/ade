@@ -79,6 +79,10 @@
 
 <script>
     const EDT_URL = "https://edt.univ-lyon1.fr/jsp/custom/modules/plannings/anonymous_cal.jsp?resources=42258&projectId=1&calType=ical&firstDate=2026-08-18&lastDate=2027-08-01";
+    
+    // Le meilleur proxy, qui fonctionne parfaitement avec GitHub
+    const PROXY_URL = `https://api.allorigins.win/get?url=${encodeURIComponent(EDT_URL)}`;
+    
     let calendarInstance = null;
 
     function parseICalDate(dateStr) {
@@ -194,16 +198,26 @@
         alertBox.style.display = hasChanges ? 'block' : 'none';
     }
 
-    // --- LA MAGIE EST ICI : Fonction de Callback JSONP ---
-    window.processEDTData = function(data) {
+    async function fetchEdt() {
         const statusEl = document.getElementById('last-update');
         const dotEl = document.getElementById('status-dot');
+        
+        try {
+            statusEl.innerText = "Recherche en cours...";
+            dotEl.style.backgroundColor = "#fbbf24"; 
 
-        if (data && data.contents) {
+            // Utilisation de AllOrigins (parfait pour GitHub Pages)
+            const response = await fetch(PROXY_URL);
+            if (!response.ok) throw new Error("Erreur réseau");
+            
+            const data = await response.json();
+            if (!data.contents) throw new Error("Données vides");
+            
             const newIcsString = data.contents;
             const newEvents = parseICS(newIcsString);
             
             const oldIcsString = localStorage.getItem('edt_saved_data');
+            
             if (oldIcsString && oldIcsString !== newIcsString) {
                 compareAndAlert(parseICS(oldIcsString), newEvents);
             } else {
@@ -216,42 +230,23 @@
             const now = new Date();
             statusEl.innerText = `À jour (${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')})`;
             dotEl.style.backgroundColor = "var(--success)";
-        } else {
-            statusEl.innerText = "Erreur de données";
+
+        } catch (error) {
+            console.error("Erreur:", error);
+            statusEl.innerText = "Erreur de synchro";
             dotEl.style.backgroundColor = "var(--accent)";
         }
-    };
-
-    function fetchEdt() {
-        const statusEl = document.getElementById('last-update');
-        const dotEl = document.getElementById('status-dot');
-        statusEl.innerText = "Recherche en cours...";
-        dotEl.style.backgroundColor = "#fbbf24"; 
-
-        // Injection d'une balise <script> pour contourner l'erreur CORS locale !
-        const script = document.createElement('script');
-        script.src = `https://api.allorigins.win/get?url=${encodeURIComponent(EDT_URL)}&callback=processEDTData&_=${new Date().getTime()}`;
-        
-        script.onerror = function() {
-            statusEl.innerText = "Erreur de connexion";
-            dotEl.style.backgroundColor = "var(--accent)";
-        };
-        
-        document.body.appendChild(script);
-        
-        // On nettoie la balise une fois qu'elle a fait son travail
-        script.onload = function() {
-            script.remove();
-        };
     }
 
     document.addEventListener('DOMContentLoaded', function() {
-        initCalendar();
+        initCalendar(); 
+        
         const savedData = localStorage.getItem('edt_saved_data');
         if (savedData) {
             loadEventsToCalendar(parseICS(savedData));
             document.getElementById('last-update').innerText = "Mode hors-ligne";
         }
+
         fetchEdt(); 
     });
 
