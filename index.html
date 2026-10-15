@@ -3,409 +3,400 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mon Emploi du Temps - Calendrier</title>
-    
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@fullcalendar/core@6.1.11/locales/fr.global.min.js"></script>
-
+    <title>KoliDz - Mise en relation Colis & Transporteurs (Algérie ↔ Europe)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        :root { 
-            --bg: #f3f4f6; 
-            --text: #1f2937; 
-            --primary: #3b82f6; 
-            --primary-dark: #2563eb;
-            --accent: #ef4444; 
-            --success: #10b981; 
-            --warning: #fbbf24;
-        }
-
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
-        
-        body { 
-            background-color: var(--bg); 
-            color: var(--text); 
-            padding: 15px; 
-            min-height: 100vh; 
-            display: flex; 
-            flex-direction: column; 
-        }
-        
-        .top-bar {
-            background: var(--primary); 
-            color: white; 
-            padding: 15px 25px;
-            border-radius: 12px; 
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center;
-            margin-bottom: 15px; 
-            flex-shrink: 0; 
-            flex-wrap: wrap; 
-            gap: 10px;
-        }
-
-        .header-left h1 { font-size: 1.4rem; font-weight: 700; }
-        .header-right { display: flex; align-items: center; gap: 15px; }
-        
-        .status { display: flex; align-items: center; gap: 8px; font-size: 0.9em; font-weight: 500;}
-        .dot { width: 10px; height: 10px; border-radius: 50%; background-color: var(--warning); transition: background-color 0.3s; }
-
-        .btn-refresh {
-            background: white; 
-            color: var(--primary); 
-            border: none;
-            padding: 8px 16px; 
-            border-radius: 8px; 
-            font-weight: 600;
-            cursor: pointer; 
-            transition: all 0.2s; 
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-        .btn-refresh:hover { background: #f8fafc; transform: translateY(-1px); }
-
-        .btn-jump {
-            background: #e0e7ff;
-            color: #3730a3;
-            border: none;
-            padding: 6px 12px;
-            border-radius: 6px;
-            font-size: 0.85em;
-            font-weight: 600;
-            cursor: pointer;
-            margin-left: 10px;
-        }
-        .btn-jump:hover { background: #c7d2fe; }
-
-        #alert-box {
-            display: none; 
-            background: #fee2e2; 
-            border-left: 5px solid var(--accent);
-            padding: 15px 20px; 
-            border-radius: 8px; 
-            margin-bottom: 15px; 
-            flex-shrink: 0;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-        }
-        #alert-box h3 { color: #991b1b; margin-bottom: 10px; font-size: 1.1em;}
-        .change-item { margin-bottom: 5px; font-size: 0.9em; color: #7f1d1d; }
-
-        #calendar-container {
-            flex-grow: 1; 
-            background: white; 
-            padding: 20px; 
-            border-radius: 12px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05); 
-            min-height: 75vh;
-            display: flex; 
-            flex-direction: column;
-        }
-        
-        #calendar { height: 100%; width: 100%; flex-grow: 1; }
-
-        .fc-event { 
-            border: none !important; 
-            border-radius: 6px !important; 
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1); 
-            cursor: pointer;
-            transition: opacity 0.2s;
-        }
-        .fc-event:hover { opacity: 0.85; }
-        .fc-event-main { padding: 4px; overflow: hidden; }
-        .custom-event-title { font-weight: 600; font-size: 0.85em; white-space: normal; line-height: 1.2; margin-bottom: 3px; }
-        .custom-event-location { font-size: 0.75em; opacity: 0.9; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        
-        .fc .fc-button-primary { background-color: var(--primary) !important; border-color: var(--primary) !important; }
-        .fc .fc-button-primary:not(:disabled):active, .fc .fc-button-primary:not(:disabled).fc-button-active {
-            background-color: var(--primary-dark) !important; border-color: var(--primary-dark) !important;
-        }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
     </style>
 </head>
-<body>
+<body class="bg-slate-50 text-slate-800">
 
-<div class="top-bar">
-    <div class="header-left">
-        <h1>🗓️ Mon Emploi du Temps</h1>
-    </div>
-    <div class="header-right">
-        <div class="status">
-            <div class="dot" id="status-dot"></div>
-            <span id="last-update">Connexion en cours...</span>
+    <!-- Navbar -->
+    <nav class="bg-white border-b border-slate-200 sticky top-0 z-40">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-2">
+                <div class="bg-emerald-600 text-white p-2 rounded-lg">
+                    <i class="fa-solid fa-boxes-packing text-xl"></i>
+                </div>
+                <span class="text-xl font-bold tracking-tight text-slate-900">Koli<span class="text-emerald-600">Dz</span></span>
+                <span class="ml-2 text-xs font-semibold bg-emerald-100 text-emerald-800 px-2.5 py-0.5 rounded-full">100% Gratuit</span>
+            </div>
+            <div class="flex items-center gap-4">
+                <button onclick="openPublishModal()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-medium px-4 py-2 rounded-lg text-sm transition flex items-center gap-2 shadow-sm">
+                    <i class="fa-solid fa-plus"></i> Publier une annonce
+                </button>
+            </div>
         </div>
-        <button class="btn-refresh" onclick="fetchEdt()">🔄 Actualiser</button>
+    </nav>
+
+    <!-- Hero & Barre de Recherche -->
+    <header class="bg-slate-900 text-white py-12 px-4">
+        <div class="max-w-5xl mx-auto text-center">
+            <h1 class="text-3xl sm:text-4xl font-bold mb-3">Expédiez vos colis entre l'Algérie, la France, l'Espagne et l'Italie</h1>
+            <p class="text-slate-300 mb-8 max-w-2xl mx-auto">Mise en relation directe et gratuite entre particuliers et transporteurs. Négociez librement votre tarif au kilo sans aucune commission.</p>
+
+            <!-- Filtres de recherche -->
+            <div class="bg-white p-4 rounded-xl shadow-lg text-slate-800 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 items-end">
+                <div class="text-left">
+                    <label class="block text-xs font-semibold text-slate-500 uppercase mb-1">Type d'annonce</label>
+                    <select id="filterType" onchange="renderListings()" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-emerald-500 outline-none">
+                        <option value="ALL">Tout voir</option>
+                        <option value="SENDER">📦 Colis à envoyer</option>
+                        <option value="CARRIER">🚐 Transporteurs (Kilos dispo)</option>
+                    </select>
+                </div>
+                <div class="text-left">
+                    <label class="block text-xs font-semibold text-slate-500 uppercase mb-1">Pays de départ</label>
+                    <select id="filterFromCountry" onchange="renderListings()" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-emerald-500 outline-none">
+                        <option value="ALL">Tous les pays</option>
+                        <option value="Algérie">🇩🇿 Algérie</option>
+                        <option value="France">🇫🇷 France</option>
+                        <option value="Espagne">🇪🇸 Espagne</option>
+                        <option value="Italie">🇮🇹 Italie</option>
+                    </select>
+                </div>
+                <div class="text-left">
+                    <label class="block text-xs font-semibold text-slate-500 uppercase mb-1">Pays d'arrivée</label>
+                    <select id="filterToCountry" onchange="renderListings()" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-emerald-500 outline-none">
+                        <option value="ALL">Tous les pays</option>
+                        <option value="Algérie">🇩🇿 Algérie</option>
+                        <option value="France">🇫🇷 France</option>
+                        <option value="Espagne">🇪🇸 Espagne</option>
+                        <option value="Italie">🇮🇹 Italie</option>
+                    </select>
+                </div>
+                <div class="text-left">
+                    <label class="block text-xs font-semibold text-slate-500 uppercase mb-1">Ville d'arrivée</label>
+                    <input type="text" id="filterToCity" oninput="renderListings()" placeholder="Ex: Lyon, Alger, Alicante..." class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-emerald-500 outline-none">
+                </div>
+                <div>
+                    <button onclick="resetFilters()" class="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium py-2 px-4 rounded-lg text-sm transition">
+                        Réinitialiser
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Contenu Principal : Liste des annonces -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+        <div class="flex justify-between items-center mb-6">
+            <h2 class="text-xl font-bold text-slate-900" id="resultsCount">Annonces disponibles</h2>
+            <span class="text-xs text-slate-500"><i class="fa-solid fa-handshake text-emerald-600 mr-1"></i> Les prix/kg sont indicatifs et négociables en direct</span>
+        </div>
+
+        <div id="listingsContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- Injecté par JavaScript -->
+        </div>
+    </main>
+
+    <!-- Modale : Publier une annonce -->
+    <div id="publishModal" class="fixed inset-0 bg-slate-900/60 hidden items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-xl overflow-y-auto max-h-[90vh]">
+            <div class="flex justify-between items-center border-b pb-3 mb-4">
+                <h3 class="text-lg font-bold">Publier une annonce gratuite</h3>
+                <button onclick="closePublishModal()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-xl"></i></button>
+            </div>
+            <form id="publishForm" onsubmit="submitListing(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold uppercase text-slate-600 mb-1">Je suis :</label>
+                    <div class="grid grid-cols-2 gap-3">
+                        <label class="border rounded-lg p-3 flex items-center gap-2 cursor-pointer has-[:checked]:border-emerald-600 has-[:checked]:bg-emerald-50">
+                            <input type="radio" name="role" value="SENDER" checked class="accent-emerald-600">
+                            <span class="text-sm font-medium">📦 Expéditeur (Colis)</span>
+                        </label>
+                        <label class="border rounded-lg p-3 flex items-center gap-2 cursor-pointer has-[:checked]:border-emerald-600 has-[:checked]:bg-emerald-50">
+                            <input type="radio" name="role" value="CARRIER" class="accent-emerald-600">
+                            <span class="text-sm font-medium">🚐 Transporteur</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-semibold uppercase text-slate-600 mb-1">Pays de départ</label>
+                        <select id="pubFromCountry" required class="w-full border rounded-lg px-3 py-2 text-sm">
+                            <option value="Algérie">🇩🇿 Algérie</option>
+                            <option value="France">🇫🇷 France</option>
+                            <option value="Espagne">🇪🇸 Espagne</option>
+                            <option value="Italie">🇮🇹 Italie</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase text-slate-600 mb-1">Ville de départ</label>
+                        <input type="text" id="pubFromCity" required placeholder="Ex: Oran, Béjaïa, Paris..." class="w-full border rounded-lg px-3 py-2 text-sm">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-semibold uppercase text-slate-600 mb-1">Pays d'arrivée</label>
+                        <select id="pubToCountry" required class="w-full border rounded-lg px-3 py-2 text-sm">
+                            <option value="France">🇫🇷 France</option>
+                            <option value="Algérie">🇩🇿 Algérie</option>
+                            <option value="Espagne">🇪🇸 Espagne</option>
+                            <option value="Italie">🇮🇹 Italie</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase text-slate-600 mb-1">Ville d'arrivée</label>
+                        <input type="text" id="pubToCity" required placeholder="Ex: Lyon, Marseille, Milan..." class="w-full border rounded-lg px-3 py-2 text-sm">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-3 gap-3">
+                    <div>
+                        <label class="block text-xs font-semibold uppercase text-slate-600 mb-1">Date prévue</label>
+                        <input type="date" id="pubDate" required class="w-full border rounded-lg px-3 py-2 text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase text-slate-600 mb-1">Poids (kg)</label>
+                        <input type="number" id="pubWeight" required min="1" placeholder="Ex: 15" class="w-full border rounded-lg px-3 py-2 text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase text-slate-600 mb-1">Prix souhaité (€/kg)</label>
+                        <input type="number" step="0.5" id="pubPrice" required min="0.5" placeholder="Ex: 4" class="w-full border rounded-lg px-3 py-2 text-sm">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-semibold uppercase text-slate-600 mb-1">Votre Prénom / Nom</label>
+                        <input type="text" id="pubName" required placeholder="Ex: Karim B." class="w-full border rounded-lg px-3 py-2 text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase text-slate-600 mb-1">Téléphone / WhatsApp</label>
+                        <input type="text" id="pubPhone" required placeholder="Ex: +33 6 12 34 56 78" class="w-full border rounded-lg px-3 py-2 text-sm">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold uppercase text-slate-600 mb-1">Description (Nature du colis, conditions...)</label>
+                    <textarea id="pubDesc" rows="2" required placeholder="Ex: cartons de vêtements, départ en fourgon via le port de Marseille..." class="w-full border rounded-lg px-3 py-2 text-sm"></textarea>
+                </div>
+
+                <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-2.5 rounded-lg transition">
+                    Publier gratuitement
+                </button>
+            </form>
+        </div>
     </div>
-</div>
 
-<div id="alert-box">
-    <h3>🚨 Changements détectés depuis votre dernière visite !</h3>
-    <div id="alert-content"></div>
-</div>
+    <!-- Modale : Négocier / Contacter -->
+    <div id="negotiateModal" class="fixed inset-0 bg-slate-900/60 hidden items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-xl">
+            <div class="flex justify-between items-center border-b pb-3 mb-4">
+                <h3 class="text-lg font-bold" id="negTitle">Proposer un prix / Contacter</h3>
+                <button onclick="closeNegotiateModal()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-xl"></i></button>
+            </div>
+            <div id="negSummary" class="bg-slate-100 p-3 rounded-lg text-sm mb-4"></div>
 
-<div id="calendar-container">
-    <div id="calendar"></div>
-</div>
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold uppercase text-slate-600 mb-1">Votre contre-proposition (€ / kg)</label>
+                    <input type="number" step="0.5" id="negOfferPrice" oninput="updateWhatsAppLink()" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm font-bold text-emerald-700">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold uppercase text-slate-600 mb-1">Poids concerné (kg)</label>
+                    <input type="number" id="negOfferWeight" oninput="updateWhatsAppLink()" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm">
+                </div>
+                <div class="bg-emerald-50 border border-emerald-200 rounded-lg p-3 flex justify-between items-center">
+                    <span class="text-xs font-medium text-emerald-900">Total estimé après négociation :</span>
+                    <span id="negTotalCalc" class="text-lg font-bold text-emerald-700">0 €</span>
+                </div>
+                <div class="pt-2 flex flex-col gap-2">
+                    <a id="whatsappBtn" href="#" target="_blank" class="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-2.5 px-4 rounded-lg text-center text-sm flex items-center justify-center gap-2 transition">
+                        <i class="fa-brands fa-whatsapp text-lg"></i> Négocier en direct sur WhatsApp
+                    </a>
+                    <p class="text-center text-xs text-slate-500">Numéro direct : <strong id="negPhoneDisplay"></strong></p>
+                </div>
+            </div>
+        </div>
+    </div>
 
-<script>
-    const EDT_URL = "https://edt.univ-lyon1.fr/jsp/custom/modules/plannings/anonymous_cal.jsp?resources=42258&projectId=1&calType=ical&firstDate=2026-08-18&lastDate=2027-08-01";
-    const PROXY_URL = `https://api.allorigins.win/get?url=${encodeURIComponent(EDT_URL)}`;
-    
-    let calendarInstance = null;
+    <script>
+        const flagMap = { "Algérie": "🇩🇿", "France": "🇫🇷", "Espagne": "🇪🇸", "Italie": "🇮🇹" };
 
-    // --- DÉCODEUR BASE64 UTF-8 (La solution au problème !) ---
-    function decodeBase64Data(rawContent) {
-        if (!rawContent || typeof rawContent !== 'string') return '';
-        
-        if (rawContent.startsWith('data:') && rawContent.includes(';base64,')) {
-            console.log("🔓 Décodage du flux Base64 en cours...");
-            try {
-                const base64Data = rawContent.substring(rawContent.indexOf(';base64,') + 8);
-                const binaryString = atob(base64Data);
-                const bytes = new Uint8Array(binaryString.length);
-                for (let i = 0; i < binaryString.length; i++) {
-                    bytes[i] = binaryString.charCodeAt(i);
-                }
-                return new TextDecoder('utf-8').decode(bytes);
-            } catch (err) {
-                console.error("Erreur lors du décodage Base64:", err);
-            }
-        }
-        return rawContent;
-    }
-
-    // Décodage précis des dates iCalendar
-    function parseICalDate(dateStr) {
-        if (!dateStr) return null;
-        const cleanStr = dateStr.trim();
-        const match = cleanStr.match(/^(\d{4})(\d{2})(\d{2})(?:T(\d{2})(\d{2})(\d{2})?(Z)?)?/);
-        if (!match) return null;
-
-        const y = parseInt(match[1], 10);
-        const m = parseInt(match[2], 10) - 1;
-        const d = parseInt(match[3], 10);
-        const h = match[4] ? parseInt(match[4], 10) : 0;
-        const min = match[5] ? parseInt(match[5], 10) : 0;
-        const s = match[6] ? parseInt(match[6], 10) : 0;
-        const isUtc = Boolean(match[7]);
-
-        if (isUtc) {
-            return new Date(Date.UTC(y, m, d, h, min, s));
-        }
-        return new Date(y, m, d, h, min, s);
-    }
-
-    // Analyseur robuste de format iCalendar
-    function parseICS(icsText) {
-        const events = {};
-        if (!icsText) return events;
-        
-        const lines = icsText.split(/\r\n|\n|\r/);
-        let currentEvent = null;
-
-        for (let i = 0; i < lines.length; i++) {
-            let line = lines[i];
-            
-            while (i + 1 < lines.length && (lines[i + 1].startsWith(' ') || lines[i + 1].startsWith('\t'))) {
-                i++;
-                line += lines[i].substring(1);
-            }
-
-            if (line.startsWith('BEGIN:VEVENT')) {
-                currentEvent = {};
-            } else if (line.startsWith('END:VEVENT')) {
-                if (currentEvent) {
-                    const uid = currentEvent.uid || ('evt_' + Math.random().toString(36).substr(2, 9));
-                    events[uid] = currentEvent;
-                }
-                currentEvent = null;
-            } else if (currentEvent) {
-                const colonIdx = line.indexOf(':');
-                if (colonIdx !== -1) {
-                    const rawKey = line.substring(0, colonIdx);
-                    const value = line.substring(colonIdx + 1).trim();
-                    const key = rawKey.split(';')[0].trim().toUpperCase();
-
-                    if (key === 'UID') currentEvent.uid = value;
-                    else if (key === 'SUMMARY') currentEvent.summary = value.replace(/\\,/g, ',').replace(/\\n/g, ' ');
-                    else if (key === 'LOCATION') currentEvent.location = value.replace(/\\,/g, ',');
-                    else if (key === 'DESCRIPTION') currentEvent.description = value.replace(/\\,/g, ',').replace(/\\n/g, '\n');
-                    else if (key === 'DTSTART') currentEvent.start = parseICalDate(value);
-                    else if (key === 'DTEND') currentEvent.end = parseICalDate(value);
-                }
-            }
-        }
-        return events;
-    }
-
-    function initCalendar() {
-        const calendarEl = document.getElementById('calendar');
-        calendarInstance = new FullCalendar.Calendar(calendarEl, {
-            locale: 'fr',
-            initialView: 'timeGridWeek',
-            headerToolbar: { 
-                left: 'prev,next today', 
-                center: 'title', 
-                right: 'dayGridMonth,timeGridWeek,timeGridDay' 
+        let listings = [
+            {
+                id: 1,
+                role: "SENDER",
+                fromCountry: "Algérie", fromCity: "Alger",
+                toCountry: "France", toCity: "Lyon",
+                date: "2026-10-25", weight: 20, pricePerKg: 3.5,
+                name: "Amine K.", phone: "+213 550 12 34 56",
+                desc: "3 cartons d'échantillons de t-shirts en coton. Cherche transporteur sérieux arrivant sur Lyon ou Vénissieux."
             },
-            slotMinTime: '07:30:00',
-            slotMaxTime: '20:30:00',
-            expandRows: true,
-            allDaySlot: false,
-            nowIndicator: true,
-            events: [],
-            eventClick: function(info) {
-                const p = info.event.extendedProps;
-                let msg = `📚 ${info.event.title}\n📍 Salle : ${p.location || 'Non précisé'}`;
-                if (p.description) msg += `\n\n📝 Détails :\n${p.description}`;
-                alert(msg);
+            {
+                id: 2,
+                role: "CARRIER",
+                fromCountry: "France", fromCity: "Marseille",
+                toCountry: "Algérie", toCity: "Béjaïa",
+                date: "2026-10-28", weight: 150, pricePerKg: 4.0,
+                name: "Transport Sofia", phone: "+33 6 98 76 54 32",
+                desc: "Départ en fourgon via bateau. Il me reste 150 kg de capacité. Livraison possible sur Béjaïa, Sétif et alentours."
             },
-            eventContent: function(arg) {
-                let html = `<div class="custom-event-title">${arg.event.title}</div>`;
-                if (arg.event.extendedProps && arg.event.extendedProps.location) {
-                    html += `<div class="custom-event-location">📍 ${arg.event.extendedProps.location}</div>`;
-                }
-                return { html: html };
+            {
+                id: 3,
+                role: "CARRIER",
+                fromCountry: "Algérie", fromCity: "Oran",
+                toCountry: "Espagne", toCity: "Alicante",
+                date: "2026-11-02", weight: 80, pricePerKg: 3.0,
+                name: "Farid T.", phone: "+34 600 11 22 33",
+                desc: "Traversée Oran - Alicante. Je prends vos colis (vêtements, gâteaux, documents). Prix dégressif si gros volume."
+            },
+            {
+                id: 4,
+                role: "SENDER",
+                fromCountry: "Italie", fromCity: "Milan",
+                toCountry: "Algérie", toCity: "Constantine",
+                date: "2026-11-05", weight: 12, pricePerKg: 5.0,
+                name: "Nadia M.", phone: "+39 333 444 5566",
+                desc: "Colis familial de 12 kg (effets personnels et vêtements). Prix au kilo négociable."
             }
-        });
-        calendarInstance.render();
-    }
+        ];
 
-    function loadEventsToCalendar(eventsMap) {
-        const eventsArray = Object.values(eventsMap);
-        const fcEvents = eventsArray.map(ev => ({
-            id: ev.uid,
-            title: ev.summary || 'Cours',
-            start: ev.start,
-            end: ev.end,
-            backgroundColor: '#3b82f6',
-            extendedProps: { 
-                location: ev.location || 'Lieu non précisé',
-                description: ev.description || ''
-            }
-        }));
+        let currentNegListing = null;
 
-        calendarInstance.removeAllEvents();
-        calendarInstance.addEventSource(fcEvents);
+        function renderListings() {
+            const type = document.getElementById('filterType').value;
+            const fromCountry = document.getElementById('filterFromCountry').value;
+            const toCountry = document.getElementById('filterToCountry').value;
+            const toCity = document.getElementById('filterToCity').value.trim().toLowerCase();
 
-        // Si la semaine actuelle n'a aucun cours, naviguer vers le premier cours disponible
-        const now = new Date();
-        const futureEvents = eventsArray.filter(e => e.start && e.start >= now).sort((a,b) => a.start - b.start);
-        
-        if (futureEvents.length > 0) {
-            console.log("Premier cours futur trouvé le :", futureEvents[0].start);
-            // S'il n'y a pas de cours cette semaine, on positionne automatiquement la vue sur la semaine du premier cours
-            const oneWeekLater = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
-            if (futureEvents[0].start > oneWeekLater) {
-                calendarInstance.gotoDate(futureEvents[0].start);
-            }
-        } else if (eventsArray.length > 0) {
-            // S'il n'y a que des cours passés, on va à la date du premier cours
-            calendarInstance.gotoDate(eventsArray[0].start);
-        }
-    }
+            const filtered = listings.filter(item => {
+                const matchType = type === "ALL" || item.role === type;
+                const matchFrom = fromCountry === "ALL" || item.fromCountry === fromCountry;
+                const matchTo = toCountry === "ALL" || item.toCountry === toCountry;
+                const matchCity = !toCity || item.toCity.toLowerCase().includes(toCity) || item.fromCity.toLowerCase().includes(toCity);
+                return matchType && matchFrom && matchTo && matchCity;
+            });
 
-    function formatDateFR(date) {
-        if (!date) return '';
-        return new Intl.DateTimeFormat('fr-FR', {
-            weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit'
-        }).format(date);
-    }
+            document.getElementById('resultsCount').innerText = `${filtered.length} annonce(s) disponible(s)`;
+            const container = document.getElementById('listingsContainer');
+            container.innerHTML = "";
 
-    function compareAndAlert(oldEvents, newEvents) {
-        const alertBox = document.getElementById('alert-box');
-        const alertContent = document.getElementById('alert-content');
-        alertContent.innerHTML = '';
-        let hasChanges = false;
+            filtered.forEach(item => {
+                const isSender = item.role === "SENDER";
+                const badgeClass = isSender ? "bg-amber-100 text-amber-800" : "bg-blue-100 text-blue-800";
+                const badgeLabel = isSender ? "📦 Colis à expédier" : "🚐 Transporteur (Kilos dispo)";
 
-        const uidsNew = Object.keys(newEvents);
-        const uidsOld = Object.keys(oldEvents);
-
-        uidsNew.forEach(uid => {
-            if (!oldEvents[uid]) {
-                hasChanges = true;
-                alertContent.innerHTML += `<div class="change-item">➕ <b>Ajouté :</b> ${newEvents[uid].summary} (${formatDateFR(newEvents[uid].start)})</div>`;
-            } else {
-                const o = oldEvents[uid], n = newEvents[uid];
-                const locDiff = o.location !== n.location;
-                const dateDiff = o.start?.getTime() !== n.start?.getTime();
-                if (locDiff || dateDiff) {
-                    hasChanges = true;
-                    alertContent.innerHTML += `<div class="change-item">✏️ <b>Modifié :</b> ${n.summary} (Maintenant : ${formatDateFR(n.start)} - ${n.location})</div>`;
-                }
-            }
-        });
-
-        uidsOld.forEach(uid => {
-            if (!newEvents[uid]) {
-                hasChanges = true;
-                alertContent.innerHTML += `<div class="change-item">➖ <b>Annulé :</b> ${oldEvents[uid].summary} (${formatDateFR(oldEvents[uid].start)})</div>`;
-            }
-        });
-
-        alertBox.style.display = hasChanges ? 'block' : 'none';
-    }
-
-    async function fetchEdt() {
-        const statusEl = document.getElementById('last-update');
-        const dotEl = document.getElementById('status-dot');
-        
-        statusEl.innerText = "Mise à jour...";
-        dotEl.style.backgroundColor = "var(--warning)";
-
-        try {
-            const response = await fetch(PROXY_URL);
-            if (!response.ok) throw new Error("Erreur proxy");
-
-            const data = await response.json();
-            if (!data.contents) throw new Error("Données vides");
-
-            // Décodage du Base64 si nécessaire
-            const newIcsString = decodeBase64Data(data.contents);
-            const newEvents = parseICS(newIcsString);
-            const nbCours = Object.keys(newEvents).length;
-
-            console.log(`✅ Succès ! ${nbCours} cours décodés.`);
-
-            if (nbCours === 0) {
-                statusEl.innerText = "0 cours trouvé";
-                dotEl.style.backgroundColor = "var(--accent)";
-                return;
-            }
-
-            const oldIcsString = localStorage.getItem('edt_saved_data');
-            if (oldIcsString && oldIcsString !== newIcsString) {
-                compareAndAlert(parseICS(oldIcsString), newEvents);
-            } else {
-                document.getElementById('alert-box').style.display = 'none';
-            }
-
-            localStorage.setItem('edt_saved_data', newIcsString);
-            loadEventsToCalendar(newEvents);
-
-            const now = new Date();
-            const heureStr = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
-            statusEl.innerText = `À jour (${heureStr}) - ${nbCours} cours`;
-            dotEl.style.backgroundColor = "var(--success)";
-
-        } catch (error) {
-            console.error("Erreur de synchro :", error);
-            statusEl.innerText = "Erreur de synchro";
-            dotEl.style.backgroundColor = "var(--accent)";
-        }
-    }
-
-    document.addEventListener('DOMContentLoaded', function() {
-        initCalendar();
-        
-        const savedData = localStorage.getItem('edt_saved_data');
-        if (savedData) {
-            loadEventsToCalendar(parseICS(savedData));
-            document.getElementById('last-update').innerText = "Mode hors-ligne";
+                const card = document.createElement('div');
+                card.className = "bg-white rounded-xl border border-slate-200 p-5 shadow-sm hover:shadow-md transition flex flex-col justify-between";
+                card.innerHTML = `
+                    <div>
+                        <div class="flex justify-between items-start mb-3">
+                            <span class="text-xs font-semibold px-2.5 py-1 rounded-full ${badgeClass}">${badgeLabel}</span>
+                            <span class="text-xs text-slate-400 font-medium"><i class="fa-regular fa-calendar mr-1"></i>${item.date}</span>
+                        </div>
+                        <div class="flex items-center gap-2 text-base font-bold text-slate-900 mb-3">
+                            <span>${flagMap[item.fromCountry]} ${item.fromCity}</span>
+                            <i class="fa-solid fa-arrow-right text-emerald-600 text-sm"></i>
+                            <span class="text-emerald-700">${flagMap[item.toCountry]} ${item.toCity}</span>
+                        </div>
+                        <p class="text-sm text-slate-600 mb-4 line-clamp-2">${item.desc}</p>
+                    </div>
+                    <div>
+                        <div class="bg-slate-50 rounded-lg p-3 flex justify-between items-center mb-4 border border-slate-100">
+                            <div>
+                                <span class="block text-[11px] uppercase text-slate-400 font-semibold">${isSender ? "Poids du colis" : "Capacité dispo"}</span>
+                                <span class="text-sm font-bold text-slate-800">${item.weight} kg</span>
+                            </div>
+                            <div class="text-right">
+                                <span class="block text-[11px] uppercase text-slate-400 font-semibold">Prix indicatif</span>
+                                <span class="text-base font-bold text-emerald-600">${item.pricePerKg.toFixed(2)} € / kg <span class="text-[11px] font-normal text-slate-500">(Négociable)</span></span>
+                            </div>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-medium text-slate-600"><i class="fa-regular fa-user mr-1"></i>${item.name}</span>
+                            <button onclick="openNegotiateModal(${item.id})" class="bg-slate-900 hover:bg-emerald-600 text-white text-xs font-semibold px-4 py-2 rounded-lg transition">
+                                Négocier le prix
+                            </button>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
         }
 
-        fetchEdt();
-    });
+        function resetFilters() {
+            document.getElementById('filterType').value = "ALL";
+            document.getElementById('filterFromCountry').value = "ALL";
+            document.getElementById('filterToCountry').value = "ALL";
+            document.getElementById('filterToCity').value = "";
+            renderListings();
+        }
 
-</script>
+        function openPublishModal() {
+            document.getElementById('publishModal').classList.remove('hidden');
+            document.getElementById('publishModal').classList.add('flex');
+        }
+
+        function closePublishModal() {
+            document.getElementById('publishModal').classList.add('hidden');
+            document.getElementById('publishModal').classList.remove('flex');
+        }
+
+        function submitListing(e) {
+            e.preventDefault();
+            const role = document.querySelector('input[name="role"]:checked').value;
+            const newListing = {
+                id: Date.now(),
+                role,
+                fromCountry: document.getElementById('pubFromCountry').value,
+                fromCity: document.getElementById('pubFromCity').value,
+                toCountry: document.getElementById('pubToCountry').value,
+                toCity: document.getElementById('pubToCity').value,
+                date: document.getElementById('pubDate').value,
+                weight: parseFloat(document.getElementById('pubWeight').value),
+                pricePerKg: parseFloat(document.getElementById('pubPrice').value),
+                name: document.getElementById('pubName').value,
+                phone: document.getElementById('pubPhone').value,
+                desc: document.getElementById('pubDesc').value
+            };
+            listings.unshift(newListing);
+            closePublishModal();
+            document.getElementById('publishForm').reset();
+            renderListings();
+        }
+
+        function openNegotiateModal(id) {
+            currentNegListing = listings.find(item => item.id === id);
+            if (!currentNegListing) return;
+
+            document.getElementById('negSummary').innerHTML = `
+                <strong>Trajet :</strong> ${currentNegListing.fromCity} (${currentNegListing.fromCountry}) ➔ ${currentNegListing.toCity} (${currentNegListing.toCountry})<br>
+                <strong>Annonceur :</strong> ${currentNegListing.name} — Prix initial : <strong>${currentNegListing.pricePerKg} €/kg</strong>
+            `;
+            document.getElementById('negOfferPrice').value = currentNegListing.pricePerKg;
+            document.getElementById('negOfferWeight').value = currentNegListing.weight;
+            document.getElementById('negPhoneDisplay').innerText = currentNegListing.phone;
+
+            updateWhatsAppLink();
+            document.getElementById('negotiateModal').classList.remove('hidden');
+            document.getElementById('negotiateModal').classList.add('flex');
+        }
+
+        function updateWhatsAppLink() {
+            if (!currentNegListing) return;
+            const offerPrice = parseFloat(document.getElementById('negOfferPrice').value) || 0;
+            const offerWeight = parseFloat(document.getElementById('negOfferWeight').value) || 0;
+            const total = (offerPrice * offerWeight).toFixed(2);
+            document.getElementById('negTotalCalc').innerText = `${total} €`;
+
+            const cleanPhone = currentNegListing.phone.replace(/[^0-9]/g, '');
+            const msg = `Bonjour ${currentNegListing.name}, j'ai vu votre annonce sur KoliDz pour le trajet ${currentNegListing.fromCity} -> ${currentNegListing.toCity}. Je vous propose ${offerPrice} €/kg pour ${offerWeight} kg (soit ${total} € au total). Êtes-vous disponible ?`;
+            document.getElementById('whatsappBtn').href = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(msg)}`;
+        }
+
+        function closeNegotiateModal() {
+            document.getElementById('negotiateModal').classList.add('hidden');
+            document.getElementById('negotiateModal').classList.remove('flex');
+        }
+
+        renderListings();
+    </script>
 </body>
 </html>
